@@ -9,8 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@contentstack/live-preview-utils": "^4.1.2",
+    "axios": "^1.13.2",
+    "bcryptjs": "^3.0.3",
+    "bootstrap": "^5.3.8",
+    "contentstack": "^3.26.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.4",
+    "multer": "^2.0.2",
     "next": "16.0.3",
     "react": "19.2.0",
+    "react-bootstrap-icons": "^1.11.6",
     "react-dom": "19.2.0"
   },
   "devDependencies": {

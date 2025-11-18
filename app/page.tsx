@@ -1,65 +1,142 @@
-import Image from "next/image";
+"use client";
+
+import React from "react";
+import Link from "next/link";
+
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+     
+
+      {/* HERO SECTION */}
+      <section
+        className="text-center text-white d-flex align-items-center justify-content-center"
+        style={{
+          minHeight: "100vh",
+          background:
+            "linear-gradient(135deg, #0f5132 0%, #198754 50%, #20c997 100%)",
+          paddingTop: "80px",
+        }}
+      >
+        <div className="container">
+          <h1 className="display-3 fw-bold mb-3">
+            FarmCom – Direct From Farmers To You 🌾
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="lead mb-4">
+            Buy & Sell Seeds, Tools, Fertilizers and Fresh Produce with complete
+            transparency. No middlemen. Fair pricing.
           </p>
+
+          <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
+            <Link
+              href="/farmcom"
+              className="btn btn-light btn-lg fw-bold px-5 py-3 shadow"
+            >
+              🚀 Get Started
+            </Link>
+
+            <Link
+              href="/login"
+              className="btn btn-outline-light btn-lg fw-bold px-5 py-3"
+            >
+              Login
+            </Link>
+
+            <Link
+              href="/signup"
+              className="btn btn-outline-warning btn-lg fw-bold px-5 py-3"
+            >
+              Sign Up
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* CATEGORIES */}
+      <section className="py-5 bg-light">
+        <div className="container">
+          <h2 className="text-center fw-bold mb-4">Popular Categories</h2>
+
+          <div className="row g-4">
+            {[
+              ["🌱 Seeds & Saplings", "seeds"],
+              ["🛠️ Farm Tools", "tools"],
+              ["🧪 Fertilizers", "fertilizers"],
+              ["🚿 Irrigation", "irrigation"],
+              ["🛡️ Pesticides", "pesticides"],
+              ["📦 Storage", "storage"],
+            ].map(([label, slug], i) => (
+              <div className="col-6 col-md-4 col-lg-2" key={i}>
+                <div
+                  className="card shadow-sm border-0 text-center p-3 h-100 category-card"
+                  style={{ borderRadius: "14px" }}
+                >
+                  <h3 className="fw-bold">{label.split(" ")[0]}</h3>
+                  <p className="small text-muted mb-3">{label}</p>
+                  <Link
+                    href="/farmcom"
+                    className="btn btn-sm btn-success fw-semibold"
+                  >
+                    Explore →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* FEATURES SECTION */}
+      <section className="py-5">
+        <div className="container">
+          <h2 className="text-center fw-bold mb-5">
+            Why Choose <span className="text-success">FarmCom</span>?
+          </h2>
+
+          <div className="row g-4">
+            {[
+              ["💸 No Middlemen", "Farmers earn more, buyers save more."],
+              ["🔒 Secure Payments", "Fast, transparent & protected checkout."],
+              ["🚚 Easy Delivery", "Nearby sellers deliver faster."],
+            ].map(([title, desc], idx) => (
+              <div className="col-md-4" key={idx}>
+                <div
+                  className="card border-0 shadow-sm p-4 h-100 text-center"
+                  style={{ borderRadius: "16px" }}
+                >
+                  <h1>{title.split(" ")[0]}</h1>
+                  <h5 className="fw-bold mt-3">{title}</h5>
+                  <p className="text-muted mt-2">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SELLER CTA */}
+      <section
+        className="py-5 text-white"
+        style={{
+          background: "linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)",
+        }}
+      >
+        <div className="container text-center">
+          <h2 className="fw-bold">Are You a Farmer or Seller?</h2>
+          <p className="lead mb-4">
+            Join FarmCom and sell directly to customers with transparent pricing.
+          </p>
+
+          <Link
+            href="/seller"
+            className="btn btn-warning btn-lg px-5 py-3 fw-bold shadow"
+          >
+            Start Selling
+          </Link>
+        </div>
+      </section>
+
+    </>
   );
 }

@@ -13,8 +13,13 @@ export async function POST(req: NextRequest) {
       name,
       email,
       password,
-      role = "buyer", // same default as your MERN logic
-    } = body;
+      role = "buyer", // default role
+    } = body as {
+      name: string;
+      email: string;
+      password: string;
+      role?: string;
+    };
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -24,10 +29,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await User.create({ name, email, password, role });
+    // create user
+    const createdUser = await User.create({ name, email, password, role });
+
+    // relax typing so TS doesn't complain about _id being unknown
+    const user = createdUser as any;
+
+    const id =
+      user._id && typeof user._id.toString === "function"
+        ? user._id.toString()
+        : String(user._id);
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id, role: user.role },
       process.env.JWT_SECRET as string,
       { expiresIn: "1d" }
     );
@@ -36,7 +50,7 @@ export async function POST(req: NextRequest) {
       {
         token,
         user: {
-          id: user._id.toString(),
+          id,
           name: user.name,
           email: user.email,
           role: user.role,

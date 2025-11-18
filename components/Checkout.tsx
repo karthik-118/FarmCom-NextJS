@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
-// ✅ Use the same Contentstack config as Header/Footer
 import Stack from "@/lib/contentstack";
 
 interface CheckoutProps {
   cartFromContext?: any[];
+  apiBase?: string; // ✅ add this
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ cartFromContext = [] }) => {
+const Checkout: React.FC<CheckoutProps> = ({
+  cartFromContext = [],
+  apiBase, // optional, used if provided
+}) => {
   // ---------------- State ----------------
   const [formData, setFormData] = useState({
     name: "",
@@ -132,13 +135,14 @@ const Checkout: React.FC<CheckoutProps> = ({ cartFromContext = [] }) => {
     };
 
     try {
-      // ✅ Now hitting Next.js API: app/api/orders/route.ts
-      const res = await fetch("/api/orders", {
+      // If apiBase is passed (like "http://localhost:8000"), use it – otherwise default to Next API route
+      const url = apiBase ? `${apiBase}/api/orders` : "/api/orders";
+
+      const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // token not used in API yet, but harmless to send
-          Authorization: `Bearer ${token}`,
+          Authorization: token ? `Bearer ${token}` : "",
         },
         body: JSON.stringify(payload),
       });
@@ -316,8 +320,6 @@ const Checkout: React.FC<CheckoutProps> = ({ cartFromContext = [] }) => {
                   )
                 )}
               </div>
-
-              {/* (You can keep / remove detailed payment fields as before) */}
 
               <button
                 className="btn btn-success w-100 fw-bold py-2"

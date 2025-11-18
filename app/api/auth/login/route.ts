@@ -5,13 +5,23 @@ import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 
+type LeanUser = {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  password: string;
+};
+
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    const body = await req.json();
-    const { email, password } = body;
 
-    const user = await User.findOne({ email });
+    const body = await req.json();
+    const { email, password } = body as { email: string; password: string };
+
+    const user = await User.findOne({ email }).lean<LeanUser>();
+
     if (!user) {
       return NextResponse.json(
         { message: "User not found" },
@@ -36,7 +46,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       token,
       user: {
-        id: user._id.toString(),
+        id: user._id,        // string now, no .toString() needed
         name: user.name,
         email: user.email,
         role: user.role,

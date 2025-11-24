@@ -21,7 +21,9 @@ const CartPage: React.FC = () => {
   const [{ cart }, dispatch] = useStateValue() as any;
   const [loading, setLoading] = useState(true);
   const [cmsText, setCmsText] = useState<CmsCartText | null>(null);
-  const apiBase = "http://localhost:8000";
+
+  // ✅ use same-origin API (NO :8000)
+  const apiBase = ""; // falsy → Checkout uses "/api/orders"
 
   // Load CMS text (singleton: cart_page)
   useEffect(() => {

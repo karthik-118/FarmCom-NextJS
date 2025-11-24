@@ -19,6 +19,54 @@ export async function POST(req: Request) {
       status: "Pending",
     });
 
+    // ---------- 📩 Contentstack Automate Order Alert ----------
+    try {
+      const automateOrderUrl = process.env.AUTOMATE_ORDER_EVENT_URL2;
+      if (automateOrderUrl) {
+        // Build readable summary
+        const summaryLines = (body.products || []).map((p: any) => {
+          const qty = p.quantity || 1;
+          const price = Number(p.price) || 0;
+          return `${qty} x ${p.name} – ₹${price} each (₹${qty * price})`;
+        });
+
+        const totalItems = (body.products || []).reduce(
+          (n: number, p: any) => n + (p.quantity || 1),
+          0
+        );
+
+        const summary = [
+          ...summaryLines,
+          "",
+          `Total items: ${totalItems}`,
+        ].join("\n");
+
+        const shippingAddress = `${body.shippingDetails.address}, ${body.shippingDetails.city}, ${body.shippingDetails.state} - ${body.shippingDetails.pincode}`;
+
+        // Send POST request to Automate (non-blocking)
+        fetch(automateOrderUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "order",
+            orderId: order._id.toString(),
+            customerName: body.customerName,
+            customerEmail: body.customerEmail,
+            totalAmount: body.totalAmount,
+            paymentMethod: body.paymentMethod,
+            summary,
+            shippingAddress,
+            time: new Date().toISOString(),
+          }),
+        }).catch((err) =>
+          console.error("Automate order alert failed:", err)
+        );
+      }
+    } catch (err) {
+      console.error("Order automate call error:", err);
+    }
+
+    // ---------- Response ----------
     return NextResponse.json(order, { status: 201 });
   } catch (err: any) {
     console.error("POST /api/orders error:", err);
@@ -41,3 +89,6 @@ export async function GET() {
     );
   }
 }
+
+// optional but recommended with Mongo/Mongoose
+export const runtime = "nodejs";

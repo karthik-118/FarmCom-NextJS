@@ -5,12 +5,12 @@ import Stack from "@/lib/contentstack";
 
 interface CheckoutProps {
   cartFromContext?: any[];
-  apiBase?: string; // ✅ add this
+  apiBase?: string; // optional, used only if provided
 }
 
 const Checkout: React.FC<CheckoutProps> = ({
   cartFromContext = [],
-  apiBase, // optional, used if provided
+  apiBase,
 }) => {
   // ---------------- State ----------------
   const [formData, setFormData] = useState({
@@ -108,8 +108,17 @@ const Checkout: React.FC<CheckoutProps> = ({
       return;
     }
 
+    const customerId: string | undefined = user?._id || user?.id;
+    if (!customerId) {
+      setMsg(
+        gTop.generic_error_prefix ||
+          "❌ Error: Unable to find your user ID. Please log out and log in again."
+      );
+      return;
+    }
+
     const payload = {
-      customerId: user._id,
+      customerId,
       customerName: formData.name,
       customerEmail: user?.email || "",
       paymentMethod: formData.paymentMethod,
@@ -132,10 +141,10 @@ const Checkout: React.FC<CheckoutProps> = ({
           s + (Number(it.price) || 0) * (it.quantity || 1),
         0
       ),
+      // If you later want to save payment details, you can also send: paymentDetails
     };
 
     try {
-      // If apiBase is passed (like "http://localhost:8000"), use it – otherwise default to Next API route
       const url = apiBase ? `${apiBase}/api/orders` : "/api/orders";
 
       const res = await fetch(url, {
@@ -197,6 +206,12 @@ const Checkout: React.FC<CheckoutProps> = ({
         0
       )
     : 0;
+
+  // ---------- helpers for bank list ----------
+  const renderBankOptionLabel = (bank: any) => {
+    if (typeof bank === "string") return bank;
+    return bank?.label || bank?.name || bank?.title || "Bank";
+  };
 
   return (
     <div className="container py-5">
@@ -321,6 +336,101 @@ const Checkout: React.FC<CheckoutProps> = ({
                 )}
               </div>
 
+              {/* ---------- CARD DETAILS SECTION ---------- */}
+              {formData.paymentMethod === "CARD" && (
+                <div className="border rounded p-3 mb-3 bg-light">
+                  <h6 className="fw-semibold mb-2">
+                    {gCard.title || "Card Details"}
+                  </h6>
+                  <input
+                    type="text"
+                    name="cardNumber"
+                    className="form-control mb-2"
+                    placeholder={gCard.card_number_placeholder || "Card Number"}
+                    value={paymentDetails.cardNumber}
+                    onChange={handlePaymentChange}
+                  />
+                  <input
+                    type="text"
+                    name="cardName"
+                    className="form-control mb-2"
+                    placeholder={gCard.card_name_placeholder || "Name on Card"}
+                    value={paymentDetails.cardName}
+                    onChange={handlePaymentChange}
+                  />
+                  <div className="row">
+                    <div className="col-md-6 mb-2">
+                      <input
+                        type="text"
+                        name="expiry"
+                        className="form-control"
+                        placeholder={gCard.expiry_placeholder || "MM/YY"}
+                        value={paymentDetails.expiry}
+                        onChange={handlePaymentChange}
+                      />
+                    </div>
+                    <div className="col-md-6 mb-2">
+                      <input
+                        type="password"
+                        name="cvv"
+                        className="form-control"
+                        placeholder={gCard.cvv_placeholder || "CVV"}
+                        value={paymentDetails.cvv}
+                        onChange={handlePaymentChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ---------- UPI SECTION ---------- */}
+              {formData.paymentMethod === "UPI" && (
+                <div className="border rounded p-3 mb-3 bg-light">
+                  <h6 className="fw-semibold mb-2">
+                    {gUpi.title || "UPI Payment"}
+                  </h6>
+                  <input
+                    type="text"
+                    name="upiId"
+                    className="form-control mb-2"
+                    placeholder={gUpi.upi_placeholder || "UPI ID (e.g., name@upi)"}
+                    value={paymentDetails.upiId}
+                    onChange={handlePaymentChange}
+                  />
+                  <small className="text-muted">
+                    {gUpi.help_text || "You will be asked to approve the payment in your UPI app."}
+                  </small>
+                </div>
+              )}
+
+              {/* ---------- NET BANKING SECTION ---------- */}
+              {formData.paymentMethod === "NETBANKING" && (
+                <div className="border rounded p-3 mb-3 bg-light">
+                  <h6 className="fw-semibold mb-2">
+                    {gNet.title || "Net Banking"}
+                  </h6>
+                  <select
+                    name="bank"
+                    className="form-select mb-2"
+                    value={paymentDetails.bank}
+                    onChange={handlePaymentChange}
+                  >
+                    <option value="">
+                      {gNet.bank_select_placeholder || "Select Bank"}
+                    </option>
+                    {gBanks.map((b: any, idx: number) => (
+                      <option key={idx} value={renderBankOptionLabel(b)}>
+                        {renderBankOptionLabel(b)}
+                      </option>
+                    ))}
+                  </select>
+                  <small className="text-muted">
+                    {gNet.help_text ||
+                      "You will be redirected to your bank's page to complete the payment."}
+                  </small>
+                </div>
+              )}
+
               <button
                 className="btn btn-success w-100 fw-bold py-2"
                 type="submit"
@@ -383,4 +493,3 @@ const Checkout: React.FC<CheckoutProps> = ({
 };
 
 export default Checkout;
- 

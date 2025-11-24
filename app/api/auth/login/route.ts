@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     // 🔔 Fire Contentstack Automate login alert (non-blocking)
     const automateUrl = process.env.AUTOMATE_USER_EVENT_URL;
+    console.log(automateUrl);
     if (automateUrl) {
       fetch(automateUrl, {
         method: "POST",

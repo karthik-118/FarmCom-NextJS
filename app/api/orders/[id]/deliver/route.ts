@@ -4,27 +4,19 @@ import Order from "@/models/Order";
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  // unwrap params (because in your Next version it's a Promise)
-  const { id } = await context.params;
-
-  const body = await request.json();
-  const { rating } = body;
-
-  if (typeof rating !== "number") {
-    return NextResponse.json(
-      { message: "Invalid rating" },
-      { status: 400 }
-    );
-  }
+  const { id } = params;
 
   await dbConnect();
 
-  await Order.findByIdAndUpdate(id, { rating });
+  const { value, comment } = await request.json();
 
-  return NextResponse.json({ message: "Rating updated" });
+  await Order.findByIdAndUpdate(id, {
+    buyerRating: { value, comment },
+  });
+
+  return NextResponse.json({ message: "Rated" });
 }
 
-// keeps file clearly a module + lets you control runtime
 export const runtime = "nodejs";

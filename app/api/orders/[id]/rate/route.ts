@@ -4,20 +4,25 @@ import Order from "@/models/Order";
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await context.params;
+  const { id } = params;
+
+  const body = await request.json();
+  const { rating } = body;
+
+  if (typeof rating !== "number") {
+    return NextResponse.json(
+      { message: "Invalid rating" },
+      { status: 400 }
+    );
+  }
 
   await dbConnect();
 
-  const { value, comment } = await request.json();
+  await Order.findByIdAndUpdate(id, { rating });
 
-  await Order.findByIdAndUpdate(id, {
-    buyerRating: { value, comment },
-  });
-
-  return NextResponse.json({ message: "Rated" });
+  return NextResponse.json({ message: "Rating updated" });
 }
 
-// Any extra export guarantees TS treats this as a module
 export const runtime = "nodejs";

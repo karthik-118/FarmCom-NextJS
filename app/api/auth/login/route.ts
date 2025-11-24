@@ -43,10 +43,28 @@ export async function POST(req: NextRequest) {
       { expiresIn: "1d" }
     );
 
+    // 🔔 Fire Contentstack Automate login alert (non-blocking)
+    const automateUrl = process.env.AUTOMATE_USER_EVENT_URL;
+    if (automateUrl) {
+      fetch(automateUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "login",
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          time: new Date().toISOString(),
+        }),
+      }).catch((err) =>
+        console.error("Automate login alert failed:", err)
+      );
+    }
+
     return NextResponse.json({
       token,
       user: {
-        id: user._id,        // string now, no .toString() needed
+        id: user._id, // string now, no .toString() needed
         name: user.name,
         email: user.email,
         role: user.role,

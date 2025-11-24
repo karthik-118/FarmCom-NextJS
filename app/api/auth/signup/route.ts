@@ -46,6 +46,24 @@ export async function POST(req: NextRequest) {
       { expiresIn: "1d" }
     );
 
+    // 🔔 Fire Contentstack Automate signup alert (non-blocking)
+    const automateUrl = process.env.AUTOMATE_USER_EVENT_URL;
+    if (automateUrl) {
+      fetch(automateUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "signup",
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          time: new Date().toISOString(),
+        }),
+      }).catch((err) =>
+        console.error("Automate signup alert failed:", err)
+      );
+    }
+
     return NextResponse.json(
       {
         token,

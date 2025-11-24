@@ -43,8 +43,8 @@ export async function POST(req: Request) {
 
         const shippingAddress = `${body.shippingDetails.address}, ${body.shippingDetails.city}, ${body.shippingDetails.state} - ${body.shippingDetails.pincode}`;
 
-        // Send POST request to Automate (non-blocking)
-        fetch(automateOrderUrl, {
+        // 🔴 Required change: await this fetch so Vercel doesn't kill it early
+        await fetch(automateOrderUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -58,9 +58,7 @@ export async function POST(req: Request) {
             shippingAddress,
             time: new Date().toISOString(),
           }),
-        }).catch((err) =>
-          console.error("Automate order alert failed:", err)
-        );
+        });
       }
     } catch (err) {
       console.error("Order automate call error:", err);

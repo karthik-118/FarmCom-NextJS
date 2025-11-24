@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Order from "@/models/Order";
 
+export const runtime = "nodejs";
+
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  // Next 16 expects params as a Promise
+  const { id } = await context.params;
 
-  const body = await request.json();
-  const { rating } = body;
+  const { rating } = await request.json();
 
   if (typeof rating !== "number") {
     return NextResponse.json(
@@ -24,5 +26,3 @@ export async function PATCH(
 
   return NextResponse.json({ message: "Rating updated" });
 }
-
-export const runtime = "nodejs";

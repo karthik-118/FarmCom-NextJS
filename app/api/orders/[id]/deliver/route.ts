@@ -2,21 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Order from "@/models/Order";
 
+export const runtime = "nodejs";
+
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  // 👇 Next 16 expects params as a Promise, so we await it
+  const { id } = await context.params;
 
   await dbConnect();
 
-  const { value, comment } = await request.json();
+  // 👉 put your own deliver logic here
+  const order = await Order.findById(id);
 
-  await Order.findByIdAndUpdate(id, {
-    buyerRating: { value, comment },
-  });
+  if (!order) {
+    return NextResponse.json({ message: "Order not found" }, { status: 404 });
+  }
 
-  return NextResponse.json({ message: "Rated" });
+  // Example: mark as delivered
+  order.isDelivered = true;
+  order.deliveredAt = new Date();
+
+  await order.save();
+
+  return NextResponse.json({ message: "Order marked as delivered" });
 }
-
-export const runtime = "nodejs";
